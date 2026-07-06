@@ -1,0 +1,6 @@
+# hasil build
+CSVCommander.exe
+*.obj
+*.res
+*.pdb
+*.ilk
