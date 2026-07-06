@@ -38,7 +38,7 @@ enum {
     // tombol custom-paint (bukan child window)
     BTN_SIDEBAR = 110, BTN_OPENFOLDER = 111, BTN_OPENFILE = 112, BTN_SAVE = 113,
     BTN_MODE_VIEW = 114, BTN_MODE_SPLIT = 115, BTN_MODE_EDIT = 116,
-    BTN_NEWTAB = 117, BTN_OPENFOLDER_BIG = 118, BTN_EXPORT = 119,
+    BTN_NEWTAB = 117, BTN_OPENFOLDER_BIG = 118, BTN_EXPORT = 119, BTN_REPLACE = 120,
 
     HIT_TAB_BASE = 1000,      // + index
     HIT_CLOSE_BASE = 2000,    // + index
@@ -528,6 +528,7 @@ static void UpdateTooltips() {
         {BTN_OPENFILE,   L"Buka file (Ctrl+O)"},
         {BTN_SAVE,       L"Simpan (Ctrl+S)"},
         {BTN_EXPORT,     L"Export (Ctrl+E)"},
+        {BTN_REPLACE,    L"Find && Replace (Ctrl+H)"},
         {BTN_NEWTAB,     L"Tab baru (Ctrl+N)"},
         {BTN_MODE_VIEW,  L"Tabel (Ctrl+1)"},
         {BTN_MODE_SPLIT, L"Edit + tabel berdampingan (Ctrl+2)"},
@@ -597,7 +598,7 @@ static void Layout() {
     // ---- hit rects
     g_hits.clear();
     int bs = S(32), by = (tbH - bs) / 2, x = S(10);
-    int ids[5] = {BTN_SIDEBAR, BTN_OPENFOLDER, BTN_OPENFILE, BTN_SAVE, BTN_EXPORT};
+    int ids[6] = {BTN_SIDEBAR, BTN_OPENFOLDER, BTN_OPENFILE, BTN_SAVE, BTN_EXPORT, BTN_REPLACE};
     for (int id : ids) {
         g_hits.push_back({id, {x, by, x + bs, by + bs}});
         x += bs + S(2);
@@ -748,7 +749,7 @@ static void PaintMain(HDC dc) {
     // ---- tombol ikon toolbar
     struct { int id; wchar_t g; } icons[] = {
         {BTN_SIDEBAR, 0xE700}, {BTN_OPENFOLDER, 0xE838}, {BTN_OPENFILE, 0xE8E5},
-        {BTN_SAVE, 0xE74E}, {BTN_EXPORT, 0xE896},
+        {BTN_SAVE, 0xE74E}, {BTN_EXPORT, 0xE896}, {BTN_REPLACE, 0xE8AC},
     };
     for (auto& ic : icons) {
         const RECT* r = HitRect(ic.id);
@@ -757,6 +758,7 @@ static void PaintMain(HDC dc) {
         bool enabled = true;
         if (ic.id == BTN_SAVE) enabled = Cur() && Cur()->dirty && !Cur()->loading;
         else if (ic.id == BTN_EXPORT) enabled = Cur() && !Cur()->loading && !Cur()->rows.empty();
+        else if (ic.id == BTN_REPLACE) enabled = Cur() && !Cur()->loading;
         DrawGlyph(dc, *r, ic.g, enabled ? CLR_TEXT : RGB(180, 185, 180), g_fontIcon);
     }
 
@@ -1351,6 +1353,11 @@ static void ShowFindDialog() {
         g_hFind = CreateWindowExW(0, L"CSVFindReplace", L"Find & Replace",
                                   st, 0, 0, wr.right - wr.left, wr.bottom - wr.top,
                                   g_hMain, nullptr, g_hInst, nullptr);
+        HICON icoSm = (HICON)LoadImageW(g_hInst, MAKEINTRESOURCEW(1), IMAGE_ICON,
+                                        GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), 0);
+        SendMessageW(g_hFind, WM_SETICON, ICON_SMALL, (LPARAM)icoSm);
+        SendMessageW(g_hFind, WM_SETICON, ICON_BIG,
+                     (LPARAM)LoadImageW(g_hInst, MAKEINTRESOURCEW(1), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
         AddFindCtl(0, L"STATIC", L"Cari:", 0, 0, S(14), S(16), S(92), S(18));
         AddFindCtl(FR_FIND, L"EDIT", L"", ES_AUTOHSCROLL | WS_TABSTOP, WS_EX_CLIENTEDGE,
                    S(112), S(12), cw - S(126), S(24));
@@ -1403,6 +1410,7 @@ static void OnButton(int id) {
         DestroyMenu(m);
         break;
     }
+    case BTN_REPLACE: ShowFindDialog(); break;
     case BTN_MODE_VIEW: SetMode(MODE_VIEW); break;
     case BTN_MODE_SPLIT: SetMode(MODE_SPLIT); break;
     case BTN_MODE_EDIT: SetMode(MODE_EDIT); break;
@@ -1766,7 +1774,8 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int nShow) {
     wc.hInstance = hInst;
     wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
     wc.hIcon = (HICON)LoadImageW(hInst, MAKEINTRESOURCEW(1), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
-    wc.hIconSm = (HICON)LoadImageW(hInst, MAKEINTRESOURCEW(1), IMAGE_ICON, 16, 16, 0);
+    wc.hIconSm = (HICON)LoadImageW(hInst, MAKEINTRESOURCEW(1), IMAGE_ICON,
+                                   GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), 0);
     wc.lpszClassName = L"CSVCommanderWnd";
     wc.style = 0;
     RegisterClassExW(&wc);

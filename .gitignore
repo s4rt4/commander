@@ -4,3 +4,4 @@ CSVCommander.exe
 *.res
 *.pdb
 *.ilk
+dist/
