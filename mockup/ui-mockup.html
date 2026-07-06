@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<!--
+  CSV Commander — Mockup UI interaktif untuk rewrite GNOME (GTK4/libadwaita).
+  File ini ADALAH spesifikasi visual & perilaku. Buka di browser, klik-klik semuanya.
+  Warna, ukuran, dan perilaku meniru persis aplikasi Win32 aslinya (src/main.cpp),
+  diadaptasi minimal ke idiom GNOME (headerbar CSD dengan tombol jendela di kanan).
+  Widget picker "MOCKUP STATE" di pojok kanan-bawah BUKAN bagian UI — hanya alat demo
+  untuk melihat state: normal / loading / kosong / folder terbuka.
+-->
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>CSV Commander — Mockup UI (GNOME)</title>
+<style>
+:root {
+  /* Palet — HARUS sama persis dengan aplikasi (src/main.cpp) */
+  --bg:       #FFFFFF;
+  --chrome:   #F7F8F7;
+  --border:   #E4E7E4;
+  --text:     #1F2328;
+  --muted:    #737A73;
+  --accent:   #0F7A4D;
+  --hot:      #E9EDE9;
+  --altrow:   #EBF4EF;  /* zebra hijau muda */
+  --hdr-sep:  #3A946A;  /* pemisah kolom di header hijau */
+  --badrow:   #FCE7E7;  /* baris rusak: jumlah kolom salah */
+  --warnrow:  #FFF4E0;  /* tipe kolom tidak cocok */
+  --grid:     #EFF1EF;  /* garis grid tabel */
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; }
+body {
+  font: 13px/1.4 Cantarell, Inter, "Segoe UI", system-ui, sans-serif;
+  color: var(--text);
+  background: #3B3B42;             /* latar desktop GNOME, hanya framing mockup */
+  display:flex; align-items:center; justify-content:center;
+}
+/* ===== jendela GNOME (client-side decoration) ===== */
+.window {
+  width: min(1240px, calc(100vw - 40px));
+  height: min(820px, calc(100vh - 40px));
+  background: var(--bg);
+  border-radius: 12px;
+  box-shadow: 0 12px 44px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.35);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 48px 38px 1fr;
+  grid-template-columns: 220px 1fr;
+}
+/* ===== headerbar (= toolbar aplikasi + tombol jendela GNOME) ===== */
+.headerbar {
+  grid-column: 1 / 3;
+  background: var(--chrome);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 10px;
+  gap: 2px;
+  position: relative;
+}
+.icon-btn {
+  width: 32px; height: 32px;
+  border: 0; background: transparent; border-radius: 6px;
+  display:flex; align-items:center; justify-content:center;
+  color: var(--text); cursor: pointer;
+}
+.icon-btn:hover { background: var(--hot); }
+.icon-btn:disabled { color:#B4B9B4; cursor: default; background: transparent; }
+.icon-btn svg { width:17px; height:17px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+/* segmented View/Split/Edit — persis di tengah headerbar */
+.segmented {
+  position:absolute; left:50%; top:50%; transform: translate(-50%,-50%);
+  display:flex; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 8px; padding: 3px;
+}
+.segmented button {
+  width: 68px; height: 28px; border:0; border-radius:6px;
+  background:transparent; font: inherit; color:var(--text); cursor:pointer;
+}
+.segmented button:hover { background: var(--hot); }
+.segmented button.active { background: var(--accent); color:#fff; font-weight:600; }
+.hb-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+#status { color: var(--muted); white-space: nowrap; }
+#filter {
+  width:180px; height:24px; padding:0 8px;
+  border:1px solid var(--border); border-radius:4px;
+  font:inherit; background:var(--bg); color:var(--text);
+}
+#filter:focus { outline: 2px solid var(--accent); outline-offset:-1px; }
+/* tombol jendela GNOME */
+.win-controls { display:flex; gap:8px; margin-left:6px; }
+.win-controls button {
+  width:24px; height:24px; border-radius:50%; border:0;
+  background:#E3E7E3; color:var(--text); cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:11px;
+}
+.win-controls button:hover { background:#D6DCD6; }
+/* ===== sidebar ===== */
+.sidebar {
+  grid-row: 2 / 4;
+  background: var(--chrome);
+  border-right: 1px solid var(--border);
+  padding: 8px 12px;
+  overflow-y: auto;
+}
+.sidebar h2 { font-size: 11px; letter-spacing:.08em; color: var(--muted); font-weight:700; margin: 4px 0 10px; }
+.sb-empty { text-align:center; color:var(--muted); margin-top: 96px; }
+.sb-empty button {
+  margin-top: 28px; padding: 7px 22px;
+  background:var(--bg); border:1px solid var(--border); border-radius:6px;
+  font:inherit; color:var(--text); cursor:pointer;
+}
+.sb-empty button:hover { background: var(--hot); }
+.sb-file { padding: 5px 8px; border-radius: 5px; cursor: pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sb-file:hover { background: var(--hot); }
+.sb-file.active { background: var(--hot); font-weight: 600; }
+/* ===== tab bar ===== */
+.tabbar {
+  background: var(--chrome);
+  border-bottom: 1px solid var(--border);
+  display:flex; align-items:flex-end;
+  padding: 6px 8px 0;
+  gap:2px;
+}
+.tab {
+  min-width: 96px; max-width: 190px; height: 32px;
+  display:flex; align-items:center; padding: 0 6px 0 10px;
+  border-radius: 6px 6px 0 0; cursor:pointer;
+  color: var(--muted); position:relative;
+}
+.tab:hover { background: var(--hot); }
+.tab.active { background: var(--bg); color: var(--text); font-weight:600; }
+.tab.active::after { content:''; position:absolute; left:0; right:0; bottom:0; height:2px; background:var(--accent); }
+.tab .t-label { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tab .dirty { color: var(--text); margin-right:4px; font-size:9px; }
+.tab .t-close {
+  width:18px; height:18px; border:0; border-radius:4px; margin-left:6px;
+  background:transparent; color:var(--muted); cursor:pointer; font-size:12px; line-height:1;
+}
+.tab .t-close:hover { background:#DCE0DC; }
+.tab-new {
+  width:26px; height:26px; margin: 0 0 3px 4px; border:0; border-radius:6px;
+  background:transparent; color:var(--muted); font-size:16px; cursor:pointer;
+}
+.tab-new:hover { background: var(--hot); }
+/* ===== konten ===== */
+.content { position:relative; overflow:hidden; display:flex; background: var(--bg); }
+.pane-edit { flex:1; display:none; min-width:0; border-right:1px solid var(--border); }
+.pane-edit textarea {
+  width:100%; height:100%; border:0; resize:none; padding:8px 10px;
+  font: 14px/1.5 "Source Code Pro", Consolas, monospace;
+  color:var(--text); background:var(--bg);
+}
+.pane-edit textarea:focus { outline:none; }
+.pane-view { flex:1; overflow:auto; display:none; min-width:0; }
+.mode-view .pane-view { display:block; }
+.mode-edit .pane-edit { display:block; border-right:0; }
+.mode-split .pane-view, .mode-split .pane-edit { display:block; flex:1 1 50%; }
+/* tabel — meniru ListView virtual: header hijau sticky, zebra, gridlines */
+/* kolom menyusut ke lebar konten (seperti ListView), area kanan dibiarkan kosong */
+table { border-collapse: separate; border-spacing:0; width:max-content; }
+tbody td, thead th { min-width: 70px; }
+thead th {
+  position: sticky; top: 0; z-index: 2;
+  background: var(--accent); color:#fff; font-weight:600; text-align:left;
+  padding: 5px 8px; border-right: 1px solid var(--hdr-sep);
+  cursor: pointer; user-select:none; white-space:nowrap;
+}
+thead th.num { text-align:right; }
+thead th .arrow { margin-left:6px; font-size:9px; }
+tbody td {
+  padding: 4px 8px; border-right:1px solid var(--grid); border-bottom:1px solid var(--grid);
+  white-space:nowrap; max-width: 340px; overflow:hidden; text-overflow:ellipsis;
+}
+tbody td.num { text-align:right; color:var(--muted); }
+tbody tr:nth-child(even) { background: var(--altrow); }
+tbody tr.bad  { background: var(--badrow) !important; }   /* jumlah kolom ≠ header */
+tbody tr.warn { background: var(--warnrow) !important; }  /* tipe menyimpang */
+tbody tr:hover td { background: rgba(15,122,77,.06); }
+/* empty state & loading */
+.overlay-msg {
+  position:absolute; inset:0; display:none;
+  flex-direction:column; align-items:center; justify-content:center;
+  color:var(--muted); background:var(--bg); z-index:5; gap:14px;
+}
+.progress-track { width:320px; height:6px; border-radius:3px; background:var(--border); overflow:hidden; }
+.progress-fill { height:100%; width:68%; border-radius:3px; background:var(--accent); }
+/* ===== dialog Find & Replace (GNOME dialog) ===== */
+.dlg-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.28); display:none; align-items:center; justify-content:center; z-index:50; }
+.dialog {
+  width: 620px; background: var(--chrome); border-radius: 12px;
+  box-shadow: 0 10px 36px rgba(0,0,0,.4); overflow:hidden;
+}
+.dlg-head { display:flex; align-items:center; padding: 10px 14px; }
+.dlg-head b { flex:1; text-align:center; }
+.dlg-head .t-close { width:24px; height:24px; border:0; border-radius:50%; background:#E3E7E3; cursor:pointer; }
+.dlg-body { padding: 4px 16px 16px; }
+.dlg-row { display:flex; align-items:center; margin-bottom:10px; }
+.dlg-row label { width: 100px; }
+.dlg-row input[type=text] {
+  flex:1; height:26px; padding:0 8px; font:inherit;
+  border:1px solid var(--border); border-radius:4px; background:var(--bg);
+}
+.dlg-row input[type=text]:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+.dlg-opts { margin-left:100px; display:flex; gap:18px; margin-bottom:12px; }
+.dlg-btns { margin-left:100px; display:flex; gap:10px; margin-bottom:12px; }
+.dlg-btns button {
+  padding: 6px 18px; font:inherit; border-radius:6px; cursor:pointer;
+  background:var(--bg); border:1px solid var(--border);
+}
+.dlg-btns button:hover { background:var(--hot); }
+.dlg-btns .primary { border-color: var(--accent); color: var(--accent); font-weight:600; }
+#fr-info { color: var(--muted); margin-bottom:8px; min-height:17px; }
+#fr-list {
+  height: 200px; overflow:auto; background:var(--bg);
+  border:1px solid var(--border); border-radius:6px;
+  font: 12px/1.6 "Source Code Pro", Consolas, monospace; padding:4px 8px; white-space:pre;
+}
+/* ===== state picker (alat mockup, BUKAN bagian UI aplikasi) ===== */
+.statebox {
+  position:fixed; right:10px; bottom:10px; z-index:99;
+  background:#1F2328; color:#fff; border-radius:8px; padding:8px 10px; font-size:11px; opacity:.92;
+}
+.statebox select { margin-left:6px; font-size:11px; }
+</style>
+</head>
+<body>
+
+<div class="window" id="win">
+  <!-- ================= HEADERBAR ================= -->
+  <div class="headerbar">
+    <button class="icon-btn" id="b-sidebar" title="Tampilkan/sembunyikan sidebar">
+      <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg></button>
+    <button class="icon-btn" title="Buka folder">
+      <svg viewBox="0 0 16 16"><path d="M1.5 4.5v8h11l2-5.5H4L2.5 11V2.5h4l1.5 2h5"/></svg></button>
+    <button class="icon-btn" title="Buka file (Ctrl+O)">
+      <svg viewBox="0 0 16 16"><path d="M9 1.5H3.5v13h9V6z"/><path d="M9 1.5V6h3.5"/></svg></button>
+    <button class="icon-btn" id="b-save" title="Simpan (Ctrl+S)" disabled>
+      <svg viewBox="0 0 16 16"><path d="M2.5 2.5h9l2 2v9h-11z"/><path d="M5 2.5V6h5V2.5M5 13.5V9.5h6v4"/></svg></button>
+    <button class="icon-btn" title="Export (Ctrl+E)">
+      <svg viewBox="0 0 16 16"><path d="M8 2v8m0 0 3-3m-3 3L5 7"/><path d="M2.5 11v2.5h11V11"/></svg></button>
+    <button class="icon-btn" id="b-replace" title="Find & Replace (Ctrl+H)">
+      <svg viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4"/><path d="M9.5 9.5 13 13"/><path d="M11 3.5h3m0 0-1.5-1.5M14 3.5 12.5 5"/></svg></button>
+
+    <div class="segmented" id="segmented">
+      <button data-mode="view" class="active" title="Tabel (Ctrl+1)">View</button>
+      <button data-mode="split" title="Edit + tabel berdampingan (Ctrl+2)">Split</button>
+      <button data-mode="edit" title="Teks CSV mentah (Ctrl+3)">Edit</button>
+    </div>
+
+    <div class="hb-right">
+      <span id="status"></span>
+      <input id="filter" type="text" placeholder="Filter baris…  (Ctrl+F)">
+      <div class="win-controls">
+        <button title="Minimize">–</button>
+        <button title="Maximize" style="font-size:9px">▢</button>
+        <button title="Close">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SIDEBAR ================= -->
+  <div class="sidebar" id="sidebar">
+    <h2>EXPLORER</h2>
+    <div id="sb-body"></div>
+  </div>
+
+  <!-- ================= TAB BAR ================= -->
+  <div class="tabbar" id="tabbar"></div>
+
+  <!-- ================= KONTEN ================= -->
+  <div class="content" id="content">
+    <div class="pane-edit"><textarea id="editor" spellcheck="false"></textarea></div>
+    <div class="pane-view" id="pane-view"></div>
+    <div class="overlay-msg" id="ov-empty">Tarik file CSV ke sini, atau tekan Ctrl+O untuk membuka file</div>
+    <div class="overlay-msg" id="ov-loading">
+      <div>Memuat big.csv…&nbsp; <span id="load-pct">68</span>%</div>
+      <div class="progress-track"><div class="progress-fill" id="load-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= DIALOG FIND & REPLACE ================= -->
+<div class="dlg-backdrop" id="fr-dlg">
+  <div class="dialog">
+    <div class="dlg-head"><b>Find &amp; Replace</b><button class="t-close" onclick="frClose()">✕</button></div>
+    <div class="dlg-body">
+      <div class="dlg-row"><label>Cari:</label><input type="text" id="fr-find"></div>
+      <div class="dlg-row"><label>Ganti dengan:</label><input type="text" id="fr-rep"></div>
+      <div class="dlg-opts">
+        <label><input type="checkbox" id="fr-regex"> Regex</label>
+        <label><input type="checkbox" id="fr-case"> Match case</label>
+      </div>
+      <div class="dlg-btns">
+        <button class="primary" onclick="frRun(false)">Preview</button>
+        <button onclick="frRun(true)">Ganti Semua</button>
+      </div>
+      <div id="fr-info"></div>
+      <div id="fr-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- alat demo mockup, bukan bagian UI aplikasi -->
+<div class="statebox">MOCKUP STATE
+  <select id="statepick" onchange="setState(this.value)">
+    <option value="normal">Normal</option>
+    <option value="loading">Loading file besar</option>
+    <option value="empty">Tanpa dokumen</option>
+    <option value="folder">Folder terbuka</option>
+  </select>
+</div>
+
+<script>
+/* ====================================================================
+   Logika mockup — meniru perilaku aplikasi asli (src/main.cpp):
+   parse CSV (kutip & deteksi delimiter), validasi skema (aturan 90%),
+   filter (debounce 250ms), sort 3-langkah, split live-reparse (400ms),
+   find & replace per-baris dengan preview, dirty state.
+==================================================================== */
+const MESSY = `ID,Nama,Umur,Skor,Tanggal
+1,Budi,34,88.5,2026-01-15
+2,Siti,28,92.1,2026-02-03
+3,Agus,41,75.0,2026-01-22
+4,Dewi,tiga puluh,81.3,2026-03-11
+5,Rian,25,95.7
+6,Lina,31,68.9,2026-01-09
+7,Tono,45,79.4,2026-03-05,extra
+8,Maya,29,90.2,2026-02-14
+9,Hendra,38,84.6,2026-01-30
+10,Fitri,27,73.8,bukan tanggal
+11,Joko,52,61.2,2026-04-18
+12,Rina,33,87.9,2026-05-02`;
+const SAMPLE = `Nama,Kota,Umur,Skor,Tanggal
+Budi Santoso,Jakarta,34,88.5,2026-01-15
+Siti Rahayu,Bandung,28,92.1,2026-02-03
+Agus Wijaya,Surabaya,41,75.0,2026-01-22
+"Dewi, S.Pd",Yogyakarta,36,81.3,2026-03-11
+Rian Hidayat,Medan,25,95.7,2026-02-28
+Lina Marlina,Semarang,31,68.9,2026-01-09
+Tono Prasetyo,Makassar,45,79.4,2026-03-05
+Maya Kusuma,Denpasar,29,90.2,2026-02-14
+Hendra Gunawan,Palembang,38,84.6,2026-01-30
+Fitri Handayani,Malang,27,73.8,2026-03-20`;
+
+let docs = [
+  { title:'messy.csv',  raw:MESSY,  dirty:false, filter:'', sortCol:-1, sortAsc:true, undo:[] },
+  { title:'sample.csv', raw:SAMPLE, dirty:false, filter:'', sortCol:-1, sortAsc:true, undo:[] },
+];
+let cur = 0, mode = 'view', sidebarOn = true, appState = 'normal';
+
+const $ = id => document.getElementById(id);
+const curDoc = () => (cur >= 0 && cur < docs.length) ? docs[cur] : null;
+
+/* ---------- parser CSV: kutip ganda, deteksi delimiter , ; \t | ---------- */
+function detectDelim(t) {
+  const counts = {',':0, ';':0, '\t':0, '|':0};
+  let q = false, lines = 0;
+  for (const c of t) {
+    if (q) { if (c === '"') q = false; continue; }
+    if (c === '"') q = true;
+    else if (c in counts) counts[c]++;
+    else if (c === '\n' && ++lines >= 5) break;
+  }
+  return Object.entries(counts).sort((a,b) => b[1]-a[1])[0][1] > 0
+       ? Object.entries(counts).sort((a,b) => b[1]-a[1])[0][0] : ',';
+}
+function parseCSV(t) {
+  const delim = detectDelim(t);
+  const rows = []; let cell = '', row = [], q = false;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i];
+    if (q) {
+      if (c === '"') { if (t[i+1] === '"') { cell += '"'; i++; } else q = false; }
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === delim) { row.push(cell); cell = ''; }
+    else if (c === '\r') {}
+    else if (c === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+    else cell += c;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  while (rows.length && rows[rows.length-1].length === 1 && rows[rows.length-1][0] === '') rows.pop();
+  const numCols = Math.max(0, ...rows.map(r => r.length));
+  return { rows, numCols, delim };
+}
+/* ---------- validasi: tipe kolom >=90% seragam; acuan lebar header ---------- */
+const isNum  = s => s !== '' && !isNaN(Number(s));
+const isDate = s => {
+  const m = s.match(/^(\d{1,4})([-\/.])(\d{1,4})\2(\d{1,4})$/);
+  return !!m && (m[1].length === 4 || m[4].length === 4);
+};
+function validate(p) {
+  const nd = p.rows.length - 1, nc = p.numCols;
+  const colTypes = Array(nc).fill(0), flags = Array(Math.max(0,nd)).fill(0);
+  let bad = 0;
+  if (nd < 1) return { colTypes, flags, bad };
+  for (let c = 0; c < nc; c++) {
+    let num = 0, dat = 0, ne = 0;
+    for (let r = 1; r <= nd; r++) {
+      const s = p.rows[r][c] ?? '';
+      if (s === '') continue;
+      ne++; if (isNum(s)) num++; else if (isDate(s)) dat++;
+    }
+    if (ne > 0) { if (num*10 >= ne*9) colTypes[c] = 1; else if (dat*10 >= ne*9) colTypes[c] = 2; }
+  }
+  const expect = p.rows[0].length;
+  for (let r = 1; r <= nd; r++) {
+    const row = p.rows[r]; let fl = 0;
+    if (row.length !== expect) fl = 1;
+    else for (let c = 0; c < nc && !fl; c++) {
+      const s = row[c] ?? ''; if (s === '' || !colTypes[c]) continue;
+      if (colTypes[c] === 1 ? !isNum(s) : !isDate(s)) fl = 2;
+    }
+    if (fl) bad++;
+    flags[r-1] = fl;
+  }
+  return { colTypes, flags, bad };
+}
+/* ---------- render ---------- */
+function render() {
+  const d = curDoc();
+  // sidebar
+  const sb = $('sb-body');
+  if (appState === 'folder') {
+    sb.innerHTML = docs.map((x,i) =>
+      `<div class="sb-file ${i===cur?'active':''}" onclick="switchTab(${i})">${x.title}</div>`).join('') +
+      `<div class="sb-file">penjualan-q2.csv</div><div class="sb-file">stok-gudang.tsv</div>`;
+  } else {
+    sb.innerHTML = `<div class="sb-empty">Belum ada folder dibuka<br><button>Buka folder…</button></div>`;
+  }
+  $('sidebar').style.display = sidebarOn ? '' : 'none';
+  document.querySelector('.tabbar').style.gridColumn = sidebarOn ? '' : '1 / 3';
+  document.querySelector('.content').style.gridColumn = sidebarOn ? '' : '1 / 3';
+  // tab
+  $('tabbar').innerHTML = docs.map((x,i) =>
+    `<div class="tab ${i===cur?'active':''}" onclick="switchTab(${i})" onauxclick="closeTab(event,${i})">
+       ${x.dirty?'<span class="dirty">●</span>':''}<span class="t-label">${x.title}</span>
+       <button class="t-close" title="Tutup tab (Ctrl+W)" onclick="closeTab(event,${i})">✕</button>
+     </div>`).join('') +
+    `<button class="tab-new" title="Tab baru (Ctrl+N)" onclick="newTab()">+</button>`;
+  // overlay state
+  $('ov-empty').style.display   = (!d && appState !== 'loading') ? 'flex' : 'none';
+  $('ov-loading').style.display = appState === 'loading' ? 'flex' : 'none';
+  $('content').className = 'content mode-' + (d && appState !== 'loading' ? mode : 'none');
+  $('b-save').disabled = !d || !d.dirty;
+  if (!d || appState === 'loading') { $('status').textContent = appState==='loading' ? '' : ''; return; }
+  // parse + validasi + tampilan
+  const p = parseCSV(d.raw);
+  const v = validate(p);
+  let vis = [];
+  const f = d.filter.toLowerCase();
+  for (let r = 1; r < p.rows.length; r++) {
+    if (!f || p.rows[r].some(c => c.toLowerCase().includes(f))) vis.push(r);
+  }
+  if (d.sortCol >= 0) {
+    const c = d.sortCol, asc = d.sortAsc ? 1 : -1;
+    vis.sort((a,b) => {
+      const sa = p.rows[a][c] ?? '', sb2 = p.rows[b][c] ?? '';
+      const r = (isNum(sa) && isNum(sb2)) ? Number(sa) - Number(sb2)
+              : sa.localeCompare(sb2, undefined, {numeric:true, sensitivity:'base'});
+      return r * asc;
+    });
+  }
+  // tabel
+  let h = '<table><thead><tr><th class="num" style="width:52px" onclick="sortBy(-1)">#</th>';
+  for (let c = 0; c < p.numCols; c++) {
+    const name = (p.rows[0]?.[c] ?? '') || ('Kolom ' + (c+1));
+    const arr = d.sortCol === c ? `<span class="arrow">${d.sortAsc ? '▲' : '▼'}</span>` : '';
+    h += `<th onclick="sortBy(${c})" title="Klik: urut naik → turun → reset">${name}${arr}</th>`;
+  }
+  h += '</tr></thead><tbody>';
+  for (const r of vis) {
+    const fl = v.flags[r-1];
+    h += `<tr class="${fl===1?'bad':fl===2?'warn':''}"><td class="num">${r}</td>`;
+    for (let c = 0; c < p.numCols; c++) h += `<td>${(p.rows[r][c] ?? '')}</td>`;
+    h += '</tr>';
+  }
+  $('pane-view').innerHTML = h + '</tbody></table>';
+  // editor (jangan timpa saat user sedang mengetik di dalamnya)
+  if (document.activeElement !== $('editor')) $('editor').value = d.raw;
+  // status
+  const total = Math.max(0, p.rows.length - 1);
+  let st = (f && vis.length !== total) ? `${vis.length} / ${total} baris · ${p.numCols} kolom`
+                                       : `${total} baris · ${p.numCols} kolom`;
+  if (v.bad) st += ` · ⚠ ${v.bad} bermasalah`;
+  $('status').textContent = st;
+  document.title = `${d.title}${d.dirty?' •':''} — CSV Commander`;
+}
+/* ---------- aksi ---------- */
+function switchTab(i) { cur = i; $('filter').value = docs[i]?.filter ?? ''; render(); }
+function closeTab(e, i) {
+  e.stopPropagation();
+  if (docs[i].dirty && !confirm(`Simpan perubahan pada "${docs[i].title}"?\n(mockup: OK = buang saja)`)) return;
+  docs.splice(i, 1);
+  if (cur >= docs.length) cur = docs.length - 1;
+  render();
+}
+function newTab() {
+  docs.push({ title:'tanpa-judul.csv', raw:'kolom1,kolom2,kolom3\n', dirty:false, filter:'', sortCol:-1, sortAsc:true, undo:[] });
+  switchTab(docs.length - 1);
+}
+function sortBy(c) {
+  const d = curDoc(); if (!d) return;
+  if (c < 0) { d.sortCol = -1; d.sortAsc = true; }
+  else if (d.sortCol === c) { if (d.sortAsc) d.sortAsc = false; else { d.sortCol = -1; d.sortAsc = true; } }
+  else { d.sortCol = c; d.sortAsc = true; }
+  render();
+}
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('#segmented button').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  render();
+}
+document.querySelectorAll('#segmented button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+$('b-sidebar').onclick = () => { sidebarOn = !sidebarOn; render(); };
+/* filter debounce 250ms */
+let tF; $('filter').oninput = e => { clearTimeout(tF); tF = setTimeout(() => { const d = curDoc(); if (d) { d.filter = e.target.value; render(); } }, 250); };
+/* split/edit live-reparse debounce 400ms */
+let tE; $('editor').oninput = e => {
+  const d = curDoc(); if (!d) return;
+  d.dirty = true;
+  clearTimeout(tE); tE = setTimeout(() => { d.raw = e.target.value; render(); }, 400);
+};
+/* ---------- find & replace ---------- */
+const escRx = s => s.replace(/[\\^$.|?*+()[\]{}]/g, '\\$&');
+function frOpen() { if (!curDoc()) return; $('fr-dlg').style.display = 'flex'; $('fr-find').focus(); $('fr-find').select(); }
+function frClose() { $('fr-dlg').style.display = 'none'; }
+$('b-replace').onclick = frOpen;
+function frRun(apply) {
+  const d = curDoc(); if (!d) return;
+  const pat = $('fr-find').value, rep = $('fr-rep').value;
+  if (!pat) { $('fr-info').textContent = 'Pola pencarian masih kosong.'; return; }
+  let re;
+  try { re = new RegExp($('fr-regex').checked ? pat : escRx(pat), $('fr-case').checked ? 'g' : 'gi'); }
+  catch { $('fr-info').textContent = 'Pola regex tidak valid.'; return; }
+  const repl = $('fr-regex').checked ? rep : rep.replace(/\$/g, '$$$$');
+  let count = 0, lines = 0; const samples = []; const out = [];
+  d.raw.split('\n').forEach((line, idx) => {
+    const n = (line.match(re) || []).length;
+    if (n) {
+      const nl = line.replace(re, repl);
+      count += n; lines++;
+      if (samples.length < 200) samples.push(`baris ${idx+1}:   ${line.slice(0,70)}   →   ${nl.slice(0,70)}`);
+      line = nl;
+    }
+    out.push(line);
+  });
+  $('fr-list').textContent = samples.join('\n');
+  if (apply) {
+    if (count) {
+      d.undo.push(d.raw);
+      d.raw = out.join('\n'); d.dirty = true;
+      $('fr-info').textContent = `${count} penggantian diterapkan di ${lines} baris.  (Ctrl+Z untuk membatalkan)`;
+      render();
+    } else $('fr-info').textContent = 'Tidak ada yang cocok — tidak ada perubahan.';
+  } else {
+    $('fr-info').textContent = `Preview: ${count} kecocokan di ${lines} baris. Belum diterapkan.`;
+  }
+}
+/* ---------- keyboard ---------- */
+document.addEventListener('keydown', e => {
+  if (!e.ctrlKey) { if (e.key === 'Escape') frClose(); return; }
+  const k = e.key.toLowerCase();
+  if (k === '1') { setMode('view'); e.preventDefault(); }
+  else if (k === '2') { setMode('split'); e.preventDefault(); }
+  else if (k === '3') { setMode('edit'); e.preventDefault(); }
+  else if (k === 'f') { $('filter').focus(); $('filter').select(); e.preventDefault(); }
+  else if (k === 'h') { frOpen(); e.preventDefault(); }
+  else if (k === 'n') { newTab(); e.preventDefault(); }
+  else if (k === 'w') { if (curDoc()) closeTab(e, cur); e.preventDefault(); }
+  else if (k === 'z' && document.activeElement !== $('editor')) {
+    const d = curDoc(); if (d && d.undo.length) { d.raw = d.undo.pop(); d.dirty = true; render(); }
+    e.preventDefault();
+  }
+});
+/* ---------- state picker (alat mockup) ---------- */
+let tLoad;
+function setState(s) {
+  appState = s;
+  clearTimeout(tLoad);
+  if (s === 'empty') { docs = []; cur = -1; }
+  else if (docs.length === 0) {
+    docs = [
+      { title:'messy.csv',  raw:MESSY,  dirty:false, filter:'', sortCol:-1, sortAsc:true, undo:[] },
+      { title:'sample.csv', raw:SAMPLE, dirty:false, filter:'', sortCol:-1, sortAsc:true, undo:[] },
+    ]; cur = 0;
+  }
+  if (s === 'loading') {  // animasi progres demo
+    let pct = 5;
+    const tick = () => {
+      pct = Math.min(97, pct + 4);
+      $('load-pct').textContent = pct;
+      $('load-fill').style.width = pct + '%';
+      if (pct < 97) tLoad = setTimeout(tick, 180);
+    };
+    tick();
+  }
+  render();
+}
+render();
+/* Parameter URL untuk screenshot state tertentu (berguna saat verifikasi otomatis):
+   ?mode=view|split|edit   ?state=normal|loading|empty|folder   ?fr=1 (buka dialog + preview contoh) */
+const q = new URLSearchParams(location.search);
+if (q.get('state')) { $('statepick').value = q.get('state'); setState(q.get('state')); }
+if (q.get('mode')) setMode(q.get('mode'));
+if (q.has('fr')) { frOpen(); $('fr-find').value = 'Budi'; $('fr-rep').value = 'BUDI'; frRun(false); }
+</script>
+</body>
+</html>
