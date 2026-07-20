@@ -2,7 +2,7 @@
 ; Compile: ISCC installer.iss  →  dist\CSVCommander-Setup-x.x.x.exe
 
 #define MyAppName "CSV Commander"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "s4rt4"
 #define MyAppURL "https://github.com/s4rt4/commander"
 #define MyAppExeName "CSVCommander.exe"
