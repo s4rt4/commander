@@ -45,7 +45,7 @@ enum {
     BTN_SIDEBAR = 110, BTN_OPENFOLDER = 111, BTN_OPENFILE = 112, BTN_SAVE = 113,
     BTN_MODE_VIEW = 114, BTN_MODE_SPLIT = 115, BTN_MODE_EDIT = 116,
     BTN_NEWTAB = 117, BTN_OPENFOLDER_BIG = 118, BTN_EXPORT = 119, BTN_REPLACE = 120,
-    BTN_THEME = 121, BTN_DELIM = 122, BTN_ENC = 123,
+    BTN_THEME = 121, BTN_DELIM = 122, BTN_ENC = 123, BTN_LANG = 124,
 
     HIT_TAB_BASE = 1000,      // + index
     HIT_CLOSE_BASE = 2000,    // + index
@@ -65,6 +65,7 @@ enum {
     // status bar: delimiter & encoding
     IDM_DELIM_COMMA = 360, IDM_DELIM_SEMI, IDM_DELIM_TAB, IDM_DELIM_PIPE,
     IDM_ENC_UTF8 = 370, IDM_ENC_UTF8BOM, IDM_ENC_ANSI,
+    IDM_LANG_ID = 380, IDM_LANG_EN,
 
     // dialog find & replace
     FR_FIND = 401, FR_REP, FR_REGEX, FR_CASE, FR_PREVIEW, FR_APPLY, FR_INFO, FR_LIST,
@@ -123,6 +124,138 @@ static const Theme THEME_DARK = {
 static COLORREF CLR_BG, CLR_CHROME, CLR_BORDER, CLR_TEXT, CLR_MUTED, CLR_ACCENT,
                 CLR_HOT, CLR_ALTROW, CLR_HDR_SEP, CLR_BADROW, CLR_WARNROW,
                 CLR_MATCH, CLR_DISABLED, CLR_CLOSEHOT;
+
+// ------------------------------------------------------------------ bahasa (i18n)
+// Semua teks UI lewat T(S_xxx). g_lang: 0 = Indonesia, 1 = English.
+
+static int g_lang = 0;
+
+enum StrId {
+    S_TIP_SIDEBAR, S_TIP_OPENFOLDER, S_TIP_OPENFILE, S_TIP_SAVE, S_TIP_EXPORT,
+    S_TIP_REPLACE, S_TIP_NEWTAB, S_TIP_VIEW, S_TIP_SPLIT, S_TIP_EDIT,
+    S_TIP_THEME, S_TIP_DELIM, S_TIP_ENC, S_TIP_LANG,
+    S_FILTER_CUE,
+    S_ROWS, S_COLS, S_ROW_CAP, S_COLNAME, S_BAD, S_READY,
+    S_D_COMMA, S_D_SEMI, S_D_TAB, S_D_PIPE,
+    S_EXPLORER, S_NO_FOLDER, S_OPEN_FOLDER,
+    S_EMPTY_HINT, S_RECENT, S_LOADING,
+    S_UNTITLED, S_NEWDOC_CONTENT,
+    S_ERR_OPEN, S_ERR_SAVE, S_ERR_EXPORT,
+    S_SAVE_PROMPT_1, S_SAVE_PROMPT_2,
+    S_EXPORTED,
+    S_FILTER_CSV, S_FILTER_CSVTSV,
+    S_MENU_EXPORT_ALL, S_EXPORT_VIEW_1, S_EXPORT_VIEW_2,
+    S_MENU_D_COMMA, S_MENU_D_SEMI, S_MENU_D_TAB, S_MENU_D_PIPE,
+    S_MENU_E_UTF8, S_MENU_E_BOM, S_MENU_E_ANSI,
+    S_ROW_INS_ABOVE, S_ROW_INS_BELOW, S_ROW_DUP_1, S_ROW_DUP_2,
+    S_ROW_DEL_1, S_ROW_DEL_2, S_ROW_COPY,
+    S_COL_STATS_1, S_COL_RENAME_1, S_COL_AUTOFIT, S_COL_INS_LEFT, S_COL_INS_RIGHT, S_COL_DEL_1,
+    S_ST_TITLE, S_ST_COL, S_ST_VIS_1, S_ST_VIS_2, S_ST_FILLED, S_ST_OF, S_ST_EMPTY,
+    S_ST_UNIQUE, S_ST_TOOMANY, S_ST_NUMERIC, S_ST_VALUES, S_ST_SUM, S_ST_AVG,
+    S_FR_FIND, S_FR_REP, S_FR_APPLY,
+    S_FR_EMPTY_PAT, S_FR_BAD_RX, S_FR_LINE,
+    S_FR_APPLIED_1, S_FR_APPLIED_2, S_FR_NONE, S_FR_PREV_1, S_FR_PREV_2,
+    S__COUNT
+};
+
+// {Indonesia, English}
+static const wchar_t* LOC[][2] = {
+    {L"Tampilkan/sembunyikan sidebar",            L"Show/hide sidebar"},
+    {L"Buka folder",                              L"Open folder"},
+    {L"Buka file (Ctrl+O)",                       L"Open file (Ctrl+O)"},
+    {L"Simpan (Ctrl+S)",                          L"Save (Ctrl+S)"},
+    {L"Export (Ctrl+E)",                          L"Export (Ctrl+E)"},
+    {L"Find && Replace (Ctrl+H)",                 L"Find && Replace (Ctrl+H)"},
+    {L"Tab baru (Ctrl+N)",                        L"New tab (Ctrl+N)"},
+    {L"Tabel (Ctrl+1)",                           L"Table (Ctrl+1)"},
+    {L"Edit + tabel berdampingan (Ctrl+2)",       L"Editor + table side by side (Ctrl+2)"},
+    {L"Teks CSV mentah (Ctrl+3)",                 L"Raw CSV text (Ctrl+3)"},
+    {L"Ganti tema terang/gelap",                  L"Toggle light/dark theme"},
+    {L"Delimiter — klik untuk mengganti",         L"Delimiter — click to change"},
+    {L"Encoding penyimpanan — klik untuk mengganti", L"Save encoding — click to change"},
+    {L"Bahasa / Language",                        L"Bahasa / Language"},
+    {L"Filter…  Ctrl+F · F3 lompat",              L"Filter…  Ctrl+F · F3 jump"},
+    {L"baris",                                    L"rows"},
+    {L"kolom",                                    L"columns"},
+    {L"Baris ",                                   L"Row "},
+    {L"Kolom ",                                   L"Column "},
+    {L"bermasalah",                               L"invalid"},
+    {L"Siap",                                     L"Ready"},
+    {L"koma",                                     L"comma"},
+    {L"titik koma",                               L"semicolon"},
+    {L"tab",                                      L"tab"},
+    {L"pipe",                                     L"pipe"},
+    {L"EXPLORER",                                 L"EXPLORER"},
+    {L"Belum ada folder dibuka",                  L"No folder opened yet"},
+    {L"Buka folder…",                             L"Open folder…"},
+    {L"Tarik file CSV ke sini, atau tekan Ctrl+O untuk membuka file",
+     L"Drop a CSV file here, or press Ctrl+O to open one"},
+    {L"TERAKHIR DIBUKA",                          L"RECENT FILES"},
+    {L"Memuat ",                                  L"Loading "},
+    {L"tanpa-judul.csv",                          L"untitled.csv"},
+    {L"kolom1,kolom2,kolom3\r\n",                 L"column1,column2,column3\r\n"},
+    {L"Gagal membuka file:\n",                    L"Failed to open file:\n"},
+    {L"Gagal menyimpan file.",                    L"Failed to save file."},
+    {L"Gagal menulis file export.",               L"Failed to write export file."},
+    {L"Simpan perubahan pada \"",                 L"Save changes to \""},
+    {L"\"?",                                      L"\"?"},
+    {L" baris data diekspor ke:\n",               L" data rows exported to:\n"},
+    {L"File CSV (*.csv)\0*.csv\0Semua file (*.*)\0*.*\0",
+     L"CSV files (*.csv)\0*.csv\0All files (*.*)\0*.*\0"},
+    {L"File CSV/TSV (*.csv;*.tsv)\0*.csv;*.tsv\0Semua file (*.*)\0*.*\0",
+     L"CSV/TSV files (*.csv;*.tsv)\0*.csv;*.tsv\0All files (*.*)\0*.*\0"},
+    {L"Export semua baris…",                      L"Export all rows…"},
+    {L"Export tampilan saat ini (",               L"Export current view ("},
+    {L" baris)…",                                 L" rows)…"},
+    {L"Koma  ( , )",                              L"Comma  ( , )"},
+    {L"Titik koma  ( ; )",                        L"Semicolon  ( ; )"},
+    {L"Tab",                                      L"Tab"},
+    {L"Pipe  ( | )",                              L"Pipe  ( | )"},
+    {L"UTF-8",                                    L"UTF-8"},
+    {L"UTF-8 dengan BOM",                         L"UTF-8 with BOM"},
+    {L"ANSI (codepage sistem)",                   L"ANSI (system codepage)"},
+    {L"Sisip baris di atas",                      L"Insert row above"},
+    {L"Sisip baris di bawah",                     L"Insert row below"},
+    {L"Duplikat ",                                L"Duplicate "},
+    {L" baris",                                   L" rows"},
+    {L"Hapus ",                                   L"Delete "},
+    {L" baris\tDel",                              L" rows\tDel"},
+    {L"Salin baris\tCtrl+C",                      L"Copy rows\tCtrl+C"},
+    {L"Statistik \"",                             L"Statistics \""},
+    {L"Ganti nama \"",                            L"Rename \""},
+    {L"Sesuaikan lebar kolom",                    L"Fit column width"},
+    {L"Sisip kolom di kiri",                      L"Insert column left"},
+    {L"Sisip kolom di kanan",                     L"Insert column right"},
+    {L"Hapus kolom \"",                           L"Delete column \""},
+    {L"Statistik — ",                             L"Statistics — "},
+    {L"Kolom: ",                                  L"Column: "},
+    {L"(dihitung dari ",                          L"(computed from "},
+    {L" baris yang tampil)\n",                    L" visible rows)\n"},
+    {L"Terisi: ",                                 L"Filled: "},
+    {L" dari ",                                   L" of "},
+    {L"Kosong: ",                                 L"Empty: "},
+    {L"Nilai unik: ",                             L"Unique values: "},
+    {L"— (terlalu banyak baris)",                 L"— (too many rows)"},
+    {L"Numerik: ",                                L"Numeric: "},
+    {L" nilai",                                   L" values"},
+    {L"Jumlah: ",                                 L"Sum: "},
+    {L"Rata-rata: ",                              L"Average: "},
+    {L"Cari:",                                    L"Find:"},
+    {L"Ganti dengan:",                            L"Replace with:"},
+    {L"Ganti Semua",                              L"Replace All"},
+    {L"Pola pencarian masih kosong.",             L"Search pattern is empty."},
+    {L"Pola regex tidak valid.",                  L"Invalid regex pattern."},
+    {L"baris ",                                   L"line "},
+    {L" penggantian diterapkan di ",              L" replacements applied on "},
+    {L" baris.  (Ctrl+Z untuk membatalkan)",      L" lines.  (Ctrl+Z to undo)"},
+    {L"Tidak ada yang cocok — tidak ada perubahan.", L"No matches — nothing changed."},
+    {L" kecocokan di ",                           L" matches on "},
+    {L" baris. Belum diterapkan.",                L" lines. Not applied yet."},
+};
+
+static_assert(sizeof(LOC) / sizeof(LOC[0]) == S__COUNT, "jumlah entri LOC harus sama dengan enum StrId");
+
+static const wchar_t* T(int s) { return LOC[s][g_lang ? 1 : 0]; }
 
 // ------------------------------------------------------------------ dokumen
 
@@ -488,7 +621,7 @@ static void RefreshListColumns(Document* d) {
         ListView_InsertColumn(g_hList, 0, &c);
         for (int i = 0; i < d->numCols; i++) {
             std::wstring name = CellAt(d, 0, i);
-            if (name.empty()) { name = L"Kolom " + std::to_wstring(i + 1); }
+            if (name.empty()) { name = std::wstring(T(S_COLNAME)) + std::to_wstring(i + 1); }
             // perkiraan lebar: header vs sampel 100 baris pertama
             size_t chars = name.size();
             int sample = std::min((int)d->rows.size(), 101);
@@ -611,6 +744,9 @@ static void AddMru(const std::wstring& path) {
 
 static void LoadSettings() {
     InitSettingsPath();
+    // default bahasa mengikuti bahasa tampilan Windows
+    int defLang = (PRIMARYLANGID(GetUserDefaultUILanguage()) == LANG_INDONESIAN) ? 0 : 1;
+    g_lang = IniInt(L"lang", defLang) ? 1 : 0;
     g_themePref = IniInt(L"theme", -1);
     g_sidebarVisible = IniInt(L"sidebar", 1) != 0;
     g_split = std::min(85, std::max(15, IniInt(L"split", 50))) / 100.0;
@@ -624,6 +760,7 @@ static void LoadSettings() {
 
 static void SaveSettings() {
     if (g_iniPath.empty()) return;
+    IniSetInt(L"lang", g_lang);
     IniSetInt(L"theme", g_themePref);
     IniSetInt(L"sidebar", g_sidebarVisible ? 1 : 0);
     IniSetInt(L"split", (int)(g_split * 100));
@@ -770,20 +907,21 @@ static void FinishRowsMutation(Document* d, bool colsChanged) {
 // daftarkan ulang area tooltip mengikuti posisi tombol terkini
 static void UpdateTooltips() {
     if (!g_hTip) return;
-    static const struct { int id; const wchar_t* txt; } tips[] = {
-        {BTN_SIDEBAR,    L"Tampilkan/sembunyikan sidebar"},
-        {BTN_OPENFOLDER, L"Buka folder"},
-        {BTN_OPENFILE,   L"Buka file (Ctrl+O)"},
-        {BTN_SAVE,       L"Simpan (Ctrl+S)"},
-        {BTN_EXPORT,     L"Export (Ctrl+E)"},
-        {BTN_REPLACE,    L"Find && Replace (Ctrl+H)"},
-        {BTN_NEWTAB,     L"Tab baru (Ctrl+N)"},
-        {BTN_MODE_VIEW,  L"Tabel (Ctrl+1)"},
-        {BTN_MODE_SPLIT, L"Edit + tabel berdampingan (Ctrl+2)"},
-        {BTN_MODE_EDIT,  L"Teks CSV mentah (Ctrl+3)"},
-        {BTN_THEME,      L"Ganti tema terang/gelap"},
-        {BTN_DELIM,      L"Delimiter — klik untuk mengganti"},
-        {BTN_ENC,        L"Encoding penyimpanan — klik untuk mengganti"},
+    static const struct { int id; int str; } tips[] = {
+        {BTN_SIDEBAR,    S_TIP_SIDEBAR},
+        {BTN_OPENFOLDER, S_TIP_OPENFOLDER},
+        {BTN_OPENFILE,   S_TIP_OPENFILE},
+        {BTN_SAVE,       S_TIP_SAVE},
+        {BTN_EXPORT,     S_TIP_EXPORT},
+        {BTN_REPLACE,    S_TIP_REPLACE},
+        {BTN_NEWTAB,     S_TIP_NEWTAB},
+        {BTN_MODE_VIEW,  S_TIP_VIEW},
+        {BTN_MODE_SPLIT, S_TIP_SPLIT},
+        {BTN_MODE_EDIT,  S_TIP_EDIT},
+        {BTN_THEME,      S_TIP_THEME},
+        {BTN_DELIM,      S_TIP_DELIM},
+        {BTN_ENC,        S_TIP_ENC},
+        {BTN_LANG,       S_TIP_LANG},
     };
     for (auto& t : tips) {
         TOOLINFOW ti = {};
@@ -796,7 +934,7 @@ static void UpdateTooltips() {
         if (!rc) continue;
         ti.uFlags = TTF_SUBCLASS;
         ti.rect = *rc;
-        ti.lpszText = (LPWSTR)t.txt;
+        ti.lpszText = (LPWSTR)T(t.str);
         SendMessageW(g_hTip, TTM_ADDTOOLW, 0, (LPARAM)&ti);
     }
 }
@@ -874,12 +1012,14 @@ static void Layout() {
     g_hits.push_back({BTN_MODE_SPLIT, {segX + segW,     segY, segX + segW * 2, segY + segH}});
     g_hits.push_back({BTN_MODE_EDIT,  {segX + segW * 2, segY, segX + segW * 3, segY + segH}});
 
-    // status bar kanan: encoding lalu delimiter (zona teks klik-able)
+    // status bar kanan: bahasa (selalu), lalu encoding & delimiter (bila ada dokumen)
     {
+        int zy0 = g_rcStatus.top + S(2), zy1 = H - S(2);
+        int lx1 = W - S(10), lx0 = lx1 - S(34);
+        g_hits.push_back({BTN_LANG, {lx0, zy0, lx1, zy1}});
         Document* d = Cur();
         if (d && !d->loading) {
-            int zy0 = g_rcStatus.top + S(2), zy1 = H - S(2);
-            int ex1 = W - S(10), ex0 = ex1 - S(80);
+            int ex1 = lx0 - S(8), ex0 = ex1 - S(80);
             g_hits.push_back({BTN_ENC, {ex0, zy0, ex1, zy1}});
             int dx1 = ex0 - S(8), dx0 = dx1 - S(84);
             g_hits.push_back({BTN_DELIM, {dx0, zy0, dx1, zy1}});
@@ -922,6 +1062,18 @@ static void Layout() {
     }
     UpdateTooltips();
     InvalidateRect(g_hMain, nullptr, FALSE);
+}
+
+// ganti bahasa UI saat runtime
+static void SetLang(int l) {
+    if (l == g_lang) return;
+    g_lang = l;
+    SendMessageW(g_hSearch, EM_SETCUEBANNER, TRUE, (LPARAM)T(S_FILTER_CUE));
+    if (g_hFind) { DestroyWindow(g_hFind); g_hFind = nullptr; }   // dibuat ulang dengan label bahasa baru
+    Document* d = Cur();
+    if (d && !d->loading) RefreshListColumns(d);                  // nama kolom default ikut bahasa
+    Layout();                                                     // tooltips didaftar ulang lewat UpdateTooltips
+    InvalidateRect(g_hMain, nullptr, TRUE);
 }
 
 // ------------------------------------------------------------------ painting
@@ -1141,29 +1293,31 @@ static void PaintMain(HDC dc) {
             int vis = (int)d->visible.size();
             std::wstring st;
             if (!d->filter.empty() && vis != total)
-                st = std::to_wstring(vis) + L" / " + std::to_wstring(total) + L" baris · " + std::to_wstring(d->numCols) + L" kolom";
+                st = std::to_wstring(vis) + L" / " + std::to_wstring(total) + L" " + T(S_ROWS) +
+                     L" · " + std::to_wstring(d->numCols) + L" " + T(S_COLS);
             else
-                st = std::to_wstring(total) + L" baris · " + std::to_wstring(d->numCols) + L" kolom";
+                st = std::to_wstring(total) + L" " + T(S_ROWS) +
+                     L" · " + std::to_wstring(d->numCols) + L" " + T(S_COLS);
             int focused = ListView_GetNextItem(g_hList, -1, LVNI_FOCUSED);
             if (focused >= 0 && focused < (int)d->visible.size()) {
-                st += L"  ·  Baris " + std::to_wstring(d->visible[focused]);
+                st += L"  ·  " + std::wstring(T(S_ROW_CAP)) + std::to_wstring(d->visible[focused]);
                 if (g_selSub >= 1 && g_selSub <= d->numCols) {
                     std::wstring cn = CellAt(d, 0, g_selSub - 1);
-                    if (cn.empty()) cn = L"Kolom " + std::to_wstring(g_selSub);
+                    if (cn.empty()) cn = std::wstring(T(S_COLNAME)) + std::to_wstring(g_selSub);
                     st += L", " + cn;
                 }
             }
             if (d->badRows > 0)
-                st += L"  ·  ⚠ " + std::to_wstring(d->badRows) + L" bermasalah";
-            RECT lr = {S(12), g_rcStatus.top, g_rcStatus.right - S(200), g_rcStatus.bottom};
+                st += L"  ·  ⚠ " + std::to_wstring(d->badRows) + L" " + T(S_BAD);
+            RECT lr = {S(12), g_rcStatus.top, g_rcStatus.right - S(240), g_rcStatus.bottom};
             SetTextColor(dc, CLR_MUTED);
             DrawTextW(dc, st.c_str(), -1, &lr, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 
             // kanan: delimiter & encoding (klik untuk mengganti)
-            const wchar_t* dn = L"koma";
-            if (d->delim == L';') dn = L"titik koma";
-            else if (d->delim == L'\t') dn = L"tab";
-            else if (d->delim == L'|') dn = L"pipe";
+            const wchar_t* dn = T(S_D_COMMA);
+            if (d->delim == L';') dn = T(S_D_SEMI);
+            else if (d->delim == L'\t') dn = T(S_D_TAB);
+            else if (d->delim == L'|') dn = T(S_D_PIPE);
             const wchar_t* en = d->enc == ENC_UTF8BOM ? L"UTF-8 BOM" : (d->enc == ENC_ANSI ? L"ANSI" : L"UTF-8");
             struct { int id; const wchar_t* txt; } zones[] = {{BTN_DELIM, dn}, {BTN_ENC, en}};
             for (auto& z : zones) {
@@ -1177,7 +1331,14 @@ static void PaintMain(HDC dc) {
         } else {
             RECT lr = {S(12), g_rcStatus.top, g_rcStatus.right - S(12), g_rcStatus.bottom};
             SetTextColor(dc, CLR_MUTED);
-            DrawTextW(dc, L"Siap", -1, &lr, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+            DrawTextW(dc, T(S_READY), -1, &lr, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+        }
+        // zona bahasa: selalu tampil
+        if (const RECT* r = HitRect(BTN_LANG)) {
+            if (g_hotId == BTN_LANG) FillRound(dc, *r, CLR_HOT, S(4));
+            SetTextColor(dc, g_hotId == BTN_LANG ? CLR_TEXT : CLR_MUTED);
+            RECT zr = *r;
+            DrawTextW(dc, g_lang ? L"EN" : L"ID", -1, &zr, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         }
         SelectObject(dc, of);
     }
@@ -1232,14 +1393,15 @@ static void PaintMain(HDC dc) {
         HFONT of = (HFONT)SelectObject(dc, g_fontUIBold);
         SetTextColor(dc, CLR_MUTED);
         RECT hr = {S(12), g_rcSidebar.top + S(8), g_rcSidebar.right - S(8), g_rcSidebar.top + S(30)};
-        std::wstring head = g_folder.empty() ? L"EXPLORER" : L"EXPLORER — " + FileNameOf(g_folder);
+        std::wstring head = g_folder.empty() ? std::wstring(T(S_EXPLORER))
+                                             : std::wstring(T(S_EXPLORER)) + L" — " + FileNameOf(g_folder);
         DrawTextW(dc, head.c_str(), -1, &hr, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
         SelectObject(dc, of);
         if (g_folder.empty()) {
             RECT mr = {S(10), g_rcSidebar.top + S(80), g_rcSidebar.right - S(10), g_rcSidebar.top + S(130)};
             of = (HFONT)SelectObject(dc, g_fontUI);
             SetTextColor(dc, CLR_MUTED);
-            DrawTextW(dc, L"Belum ada folder dibuka", -1, &mr, DT_CENTER | DT_WORDBREAK);
+            DrawTextW(dc, T(S_NO_FOLDER), -1, &mr, DT_CENTER | DT_WORDBREAK);
             SelectObject(dc, of);
             if (const RECT* r = HitRect(BTN_OPENFOLDER_BIG)) {
                 FillRound(dc, *r, g_hotId == BTN_OPENFOLDER_BIG ? CLR_HOT : CLR_BG, S(6));
@@ -1252,7 +1414,7 @@ static void PaintMain(HDC dc) {
                 of = (HFONT)SelectObject(dc, g_fontUI);
                 SetTextColor(dc, CLR_TEXT);
                 RECT br2 = *r;
-                DrawTextW(dc, L"Buka folder…", -1, &br2, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+                DrawTextW(dc, T(S_OPEN_FOLDER), -1, &br2, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
                 SelectObject(dc, of);
             }
         }
@@ -1268,12 +1430,11 @@ static void PaintMain(HDC dc) {
         RECT mr = {g_rcContent.left, cym - S(72), g_rcContent.right, cym - S(44)};
         HFONT of = (HFONT)SelectObject(dc, g_fontUI);
         SetTextColor(dc, CLR_MUTED);
-        DrawTextW(dc, L"Tarik file CSV ke sini, atau tekan Ctrl+O untuk membuka file",
-                  -1, &mr, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        DrawTextW(dc, T(S_EMPTY_HINT), -1, &mr, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         if (!g_mru.empty()) {
             RECT hr2 = {g_rcContent.left, cym - S(34), g_rcContent.right, cym - S(12)};
             SelectObject(dc, g_fontUIBold);
-            DrawTextW(dc, L"TERAKHIR DIBUKA", -1, &hr2, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+            DrawTextW(dc, T(S_RECENT), -1, &hr2, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
             SelectObject(dc, g_fontUI);
             for (int i = 0; i < (int)g_mru.size(); i++) {
                 const RECT* r = HitRect(HIT_MRU_BASE + i);
@@ -1294,7 +1455,7 @@ static void PaintMain(HDC dc) {
     } else if (dcur->loading) {
         int cxm = (g_rcContent.left + g_rcContent.right) / 2;
         int cym = (g_rcContent.top + g_rcContent.bottom) / 2;
-        std::wstring msg = L"Memuat " + dcur->title + L"…  " + std::to_wstring(dcur->loadPercent) + L"%";
+        std::wstring msg = T(S_LOADING) + dcur->title + L"…  " + std::to_wstring(dcur->loadPercent) + L"%";
         RECT mr = {g_rcContent.left, cym - S(40), g_rcContent.right, cym - S(10)};
         HFONT of = (HFONT)SelectObject(dc, g_fontUI);
         SetTextColor(dc, CLR_MUTED);
@@ -1353,7 +1514,7 @@ static void OpenPath(const std::wstring& path) {
     }
     WIN32_FILE_ATTRIBUTE_DATA fad;
     if (!GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &fad)) {
-        MessageBoxW(g_hMain, (L"Gagal membuka file:\n" + path).c_str(), L"CSV Commander", MB_ICONERROR);
+        MessageBoxW(g_hMain, (T(S_ERR_OPEN) + path).c_str(), L"CSV Commander", MB_ICONERROR);
         return;
     }
     ULONGLONG sz = ((ULONGLONG)fad.nFileSizeHigh << 32) | fad.nFileSizeLow;
@@ -1368,7 +1529,7 @@ static void OpenPath(const std::wstring& path) {
         // file kecil: sinkron, tanpa layar loading
         if (!ReadFileText(path, d->rawText, d->enc)) {
             delete d;
-            MessageBoxW(g_hMain, (L"Gagal membuka file:\n" + path).c_str(), L"CSV Commander", MB_ICONERROR);
+            MessageBoxW(g_hMain, (T(S_ERR_OPEN) + path).c_str(), L"CSV Commander", MB_ICONERROR);
             return;
         }
         NormalizeCRLF(d->rawText);
@@ -1401,8 +1562,8 @@ static void OpenPath(const std::wstring& path) {
 static void NewDoc() {
     Document* d = new Document();
     d->id = ++g_docIdSeq;
-    d->title = L"tanpa-judul.csv";
-    d->rawText = L"kolom1,kolom2,kolom3\r\n";
+    d->title = T(S_UNTITLED);
+    d->rawText = T(S_NEWDOC_CONTENT);
     AddDoc(d);
 }
 
@@ -1415,7 +1576,7 @@ static bool SaveDoc(Document* d, bool saveAs) {
         lstrcpynW(buf, d->title.c_str(), MAX_PATH);
         OPENFILENAMEW ofn = {sizeof(ofn)};
         ofn.hwndOwner = g_hMain;
-        ofn.lpstrFilter = L"File CSV (*.csv)\0*.csv\0Semua file (*.*)\0*.*\0";
+        ofn.lpstrFilter = T(S_FILTER_CSV);
         ofn.lpstrFile = buf;
         ofn.nMaxFile = MAX_PATH;
         ofn.lpstrDefExt = L"csv";
@@ -1424,7 +1585,7 @@ static bool SaveDoc(Document* d, bool saveAs) {
         path = buf;
     }
     if (!WriteFileText(path, d->rawText, d->enc)) {
-        MessageBoxW(g_hMain, L"Gagal menyimpan file.", L"CSV Commander", MB_ICONERROR);
+        MessageBoxW(g_hMain, T(S_ERR_SAVE), L"CSV Commander", MB_ICONERROR);
         return false;
     }
     d->path = path;
@@ -1464,7 +1625,7 @@ static void ExportDoc(Document* d, bool viewOnly) {
     lstrcpynW(buf, base.c_str(), MAX_PATH);
     OPENFILENAMEW ofn = {sizeof(ofn)};
     ofn.hwndOwner = g_hMain;
-    ofn.lpstrFilter = L"File CSV (*.csv)\0*.csv\0";
+    ofn.lpstrFilter = T(S_FILTER_CSV);
     ofn.lpstrFile = buf;
     ofn.nMaxFile = MAX_PATH;
     ofn.lpstrDefExt = L"csv";
@@ -1485,10 +1646,10 @@ static void ExportDoc(Document* d, bool viewOnly) {
     else          { for (size_t r = 1; r < d->rows.size(); r++) { appendRow(d->rows[r]); n++; } }
 
     if (!WriteFileText(buf, out, d->enc)) {
-        MessageBoxW(g_hMain, L"Gagal menulis file export.", L"CSV Commander", MB_ICONERROR);
+        MessageBoxW(g_hMain, T(S_ERR_EXPORT), L"CSV Commander", MB_ICONERROR);
         return;
     }
-    std::wstring m = std::to_wstring(n) + L" baris data diekspor ke:\n" + buf;
+    std::wstring m = std::to_wstring(n) + T(S_EXPORTED) + buf;
     MessageBoxW(g_hMain, m.c_str(), L"CSV Commander", MB_ICONINFORMATION);
 }
 
@@ -1498,7 +1659,7 @@ static bool CloseDoc(int i) {
     Document* d = g_docs[i];
     if (i == g_cur) PullEditText(d);
     if (d->dirty) {
-        std::wstring msg = L"Simpan perubahan pada \"" + d->title + L"\"?";
+        std::wstring msg = T(S_SAVE_PROMPT_1) + d->title + T(S_SAVE_PROMPT_2);
         int r = MessageBoxW(g_hMain, msg.c_str(), L"CSV Commander", MB_YESNOCANCEL | MB_ICONQUESTION);
         if (r == IDCANCEL) return false;
         if (r == IDYES && !SaveDoc(d, false)) return false;
@@ -1570,7 +1731,7 @@ static void DoOpenFileDialog() {
     wchar_t buf[MAX_PATH * 8] = {};
     OPENFILENAMEW ofn = {sizeof(ofn)};
     ofn.hwndOwner = g_hMain;
-    ofn.lpstrFilter = L"File CSV/TSV (*.csv;*.tsv)\0*.csv;*.tsv\0Semua file (*.*)\0*.*\0";
+    ofn.lpstrFilter = T(S_FILTER_CSVTSV);
     ofn.lpstrFile = buf;
     ofn.nMaxFile = _countof(buf);
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
@@ -1811,7 +1972,7 @@ static void ColInsert(Document* d, int col, bool right) {
         auto& row = d->rows[r];
         while ((int)row.size() < pos) row.push_back(L"");
         row.insert(row.begin() + pos,
-                   r == 0 ? L"Kolom " + std::to_wstring(pos + 1) : std::wstring());
+                   r == 0 ? T(S_COLNAME) + std::to_wstring(pos + 1) : std::wstring());
     }
     FinishRowsMutation(d, true);
 }
@@ -1857,7 +2018,7 @@ static void CopySelection(Document* d) {
 static void ShowColStats(Document* d, int col) {
     if (!d || d->loading || col < 0 || col >= d->numCols) return;
     std::wstring name = CellAt(d, 0, col);
-    if (name.empty()) name = L"Kolom " + std::to_wstring(col + 1);
+    if (name.empty()) name = T(S_COLNAME) + std::to_wstring(col + 1);
 
     int total = (int)d->visible.size(), nonEmpty = 0, numCount = 0;
     double mn = 0, mx = 0, sum = 0;
@@ -1883,18 +2044,18 @@ static void ShowColStats(Document* d, int col) {
             swprintf_s(b, L"%.6g", v);
         return std::wstring(b);
     };
-    std::wstring m = L"Kolom: " + name + L"\n";
-    if (!d->filter.empty()) m += L"(dihitung dari " + std::to_wstring(total) + L" baris yang tampil)\n";
-    m += L"\nTerisi: " + std::to_wstring(nonEmpty) + L" dari " + std::to_wstring(total) + L" baris";
-    m += L"\nKosong: " + std::to_wstring(total - nonEmpty);
-    m += L"\nNilai unik: " + (trackUniq ? std::to_wstring(uniq.size()) : std::wstring(L"— (terlalu banyak baris)"));
+    std::wstring m = T(S_ST_COL) + name + L"\n";
+    if (!d->filter.empty()) m += T(S_ST_VIS_1) + std::to_wstring(total) + T(S_ST_VIS_2);
+    m += L"\n" + std::wstring(T(S_ST_FILLED)) + std::to_wstring(nonEmpty) + T(S_ST_OF) + std::to_wstring(total) + L" " + T(S_ROWS);
+    m += L"\n" + std::wstring(T(S_ST_EMPTY)) + std::to_wstring(total - nonEmpty);
+    m += L"\n" + std::wstring(T(S_ST_UNIQUE)) + (trackUniq ? std::to_wstring(uniq.size()) : std::wstring(T(S_ST_TOOMANY)));
     if (numCount > 0) {
-        m += L"\n\nNumerik: " + std::to_wstring(numCount) + L" nilai";
+        m += L"\n\n" + std::wstring(T(S_ST_NUMERIC)) + std::to_wstring(numCount) + T(S_ST_VALUES);
         m += L"\nMin: " + fmt(mn) + L"\nMax: " + fmt(mx);
-        m += L"\nJumlah: " + fmt(sum);
-        m += L"\nRata-rata: " + fmt(sum / numCount);
+        m += L"\n" + std::wstring(T(S_ST_SUM)) + fmt(sum);
+        m += L"\n" + std::wstring(T(S_ST_AVG)) + fmt(sum / numCount);
     }
-    MessageBoxW(g_hMain, m.c_str(), (L"Statistik — " + name).c_str(), MB_ICONINFORMATION);
+    MessageBoxW(g_hMain, m.c_str(), (T(S_ST_TITLE) + name).c_str(), MB_ICONINFORMATION);
 }
 
 // ------------------------------------------------------------------ cari sel (F3)
@@ -1946,7 +2107,7 @@ static void AutofitColumn(int hi) {
     HFONT of = (HFONT)SelectObject(dc, g_fontUI);
     SIZE sz;
     std::wstring name = CellAt(d, 0, c);
-    if (name.empty()) name = L"Kolom " + std::to_wstring(c + 1);
+    if (name.empty()) name = T(S_COLNAME) + std::to_wstring(c + 1);
     GetTextExtentPoint32W(dc, name.c_str(), (int)name.size(), &sz);
     int w = sz.cx + S(30);
     int sample = std::min((int)d->visible.size(), 500);   // sampling agar tetap cepat di file besar
@@ -1965,15 +2126,15 @@ static void AutofitColumn(int hi) {
 
 static void AppendColMenu(HMENU m, Document* d, int col) {
     std::wstring cn = CellAt(d, 0, col);
-    if (cn.empty()) cn = L"Kolom " + std::to_wstring(col + 1);
-    AppendMenuW(m, MF_STRING, IDM_COL_STATS,  (L"Statistik \"" + cn + L"\"…").c_str());
-    AppendMenuW(m, MF_STRING, IDM_COL_RENAME, (L"Ganti nama \"" + cn + L"\"").c_str());
-    AppendMenuW(m, MF_STRING, IDM_COL_AUTOFIT, L"Sesuaikan lebar kolom");
+    if (cn.empty()) cn = T(S_COLNAME) + std::to_wstring(col + 1);
+    AppendMenuW(m, MF_STRING, IDM_COL_STATS,  (T(S_COL_STATS_1) + cn + L"\"…").c_str());
+    AppendMenuW(m, MF_STRING, IDM_COL_RENAME, (T(S_COL_RENAME_1) + cn + L"\"").c_str());
+    AppendMenuW(m, MF_STRING, IDM_COL_AUTOFIT, T(S_COL_AUTOFIT));
     AppendMenuW(m, MF_SEPARATOR, 0, nullptr);
-    AppendMenuW(m, MF_STRING, IDM_COL_INS_LEFT,  L"Sisip kolom di kiri");
-    AppendMenuW(m, MF_STRING, IDM_COL_INS_RIGHT, L"Sisip kolom di kanan");
+    AppendMenuW(m, MF_STRING, IDM_COL_INS_LEFT,  T(S_COL_INS_LEFT));
+    AppendMenuW(m, MF_STRING, IDM_COL_INS_RIGHT, T(S_COL_INS_RIGHT));
     AppendMenuW(m, MF_STRING | (d->numCols > 1 ? 0 : MF_GRAYED), IDM_COL_DEL,
-                (L"Hapus kolom \"" + cn + L"\"").c_str());
+                (T(S_COL_DEL_1) + cn + L"\"").c_str());
 }
 
 static void ShowListContextMenu(POINT scr) {
@@ -1996,16 +2157,16 @@ static void ShowListContextMenu(POINT scr) {
     int selCount = ListView_GetSelectedCount(g_hList);
     HMENU m = CreatePopupMenu();
     if (onRow) {
-        std::wstring del = selCount > 1 ? L"Hapus " + std::to_wstring(selCount) + L" baris\tDel"
-                                        : L"Hapus baris\tDel";
-        std::wstring dup = selCount > 1 ? L"Duplikat " + std::to_wstring(selCount) + L" baris"
-                                        : L"Duplikat baris";
-        AppendMenuW(m, MF_STRING, IDM_ROW_INS_ABOVE, L"Sisip baris di atas");
-        AppendMenuW(m, MF_STRING, IDM_ROW_INS_BELOW, L"Sisip baris di bawah");
+        std::wstring del = T(S_ROW_DEL_1) + (selCount > 1 ? std::to_wstring(selCount) + T(S_ROW_DEL_2)
+                                                       : std::wstring(g_lang ? L"row\tDel" : L"baris\tDel"));
+        std::wstring dup = T(S_ROW_DUP_1) + (selCount > 1 ? std::to_wstring(selCount) + T(S_ROW_DUP_2)
+                                                       : std::wstring(g_lang ? L"row" : L"baris"));
+        AppendMenuW(m, MF_STRING, IDM_ROW_INS_ABOVE, T(S_ROW_INS_ABOVE));
+        AppendMenuW(m, MF_STRING, IDM_ROW_INS_BELOW, T(S_ROW_INS_BELOW));
         AppendMenuW(m, MF_STRING, IDM_ROW_DUP, dup.c_str());
         AppendMenuW(m, MF_STRING, IDM_ROW_DEL, del.c_str());
         AppendMenuW(m, MF_SEPARATOR, 0, nullptr);
-        AppendMenuW(m, MF_STRING, IDM_COPY, L"Salin baris\tCtrl+C");
+        AppendMenuW(m, MF_STRING, IDM_COPY, T(S_ROW_COPY));
         AppendMenuW(m, MF_SEPARATOR, 0, nullptr);
     }
     if (col >= 0 && col < d->numCols) {
@@ -2053,14 +2214,14 @@ struct ReplaceOutcome { int repl = 0; int lines = 0; std::wstring text; };
 static bool ComputeReplace(const std::wstring& src, const std::wstring& pat, const std::wstring& rep,
                            bool useRegex, bool matchCase, ReplaceOutcome& out,
                            std::vector<std::wstring>* samples, std::wstring& err) {
-    if (pat.empty()) { err = L"Pola pencarian masih kosong."; return false; }
+    if (pat.empty()) { err = T(S_FR_EMPTY_PAT); return false; }
     std::wstring rxs = useRegex ? pat : EscapeRegex(pat);
     std::wstring rps = useRegex ? rep : EscapeRepl(rep);
     auto flags = std::regex_constants::ECMAScript;
     if (!matchCase) flags |= std::regex_constants::icase;
     std::wregex re;
     try { re.assign(rxs, flags); }
-    catch (const std::regex_error&) { err = L"Pola regex tidak valid."; return false; }
+    catch (const std::regex_error&) { err = T(S_FR_BAD_RX); return false; }
 
     out.text.reserve(src.size());
     size_t pos = 0;
@@ -2081,7 +2242,7 @@ static bool ComputeReplace(const std::wstring& src, const std::wstring& pat, con
                 std::wstring a = line, b = rl;
                 if (a.size() > 70) a = a.substr(0, 70) + L"…";
                 if (b.size() > 70) b = b.substr(0, 70) + L"…";
-                samples->push_back(L"baris " + std::to_wstring(lineNo) + L":   " + a + L"   →   " + b);
+                samples->push_back(T(S_FR_LINE) + std::to_wstring(lineNo) + L":   " + a + L"   →   " + b);
             }
             line = rl;
         }
@@ -2141,12 +2302,12 @@ static LRESULT CALLBACK FindProc(HWND h, UINT msg, WPARAM wp, LPARAM lp) {
                 if (ro.repl) {
                     PushUndo(d);
                     ApplyRawText(d, ro.text);
-                    info = std::to_wstring(ro.repl) + L" penggantian diterapkan di " +
-                           std::to_wstring(ro.lines) + L" baris.  (Ctrl+Z untuk membatalkan)";
-                } else info = L"Tidak ada yang cocok — tidak ada perubahan.";
+                    info = std::to_wstring(ro.repl) + T(S_FR_APPLIED_1) +
+                           std::to_wstring(ro.lines) + T(S_FR_APPLIED_2);
+                } else info = T(S_FR_NONE);
             } else {
-                info = L"Preview: " + std::to_wstring(ro.repl) + L" kecocokan di " +
-                       std::to_wstring(ro.lines) + L" baris. Belum diterapkan.";
+                info = L"Preview: " + std::to_wstring(ro.repl) + T(S_FR_PREV_1) +
+                       std::to_wstring(ro.lines) + T(S_FR_PREV_2);
             }
             SetWindowTextW(GetDlgItem(h, FR_INFO), info.c_str());
             return 0;
@@ -2192,10 +2353,10 @@ static void ShowFindDialog() {
         SendMessageW(g_hFind, WM_SETICON, ICON_SMALL, (LPARAM)icoSm);
         SendMessageW(g_hFind, WM_SETICON, ICON_BIG,
                      (LPARAM)LoadImageW(g_hInst, MAKEINTRESOURCEW(1), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
-        AddFindCtl(0, L"STATIC", L"Cari:", 0, 0, S(14), S(16), S(92), S(18));
+        AddFindCtl(0, L"STATIC", T(S_FR_FIND), 0, 0, S(14), S(16), S(92), S(18));
         AddFindCtl(FR_FIND, L"EDIT", L"", ES_AUTOHSCROLL | WS_TABSTOP, WS_EX_CLIENTEDGE,
                    S(112), S(12), cw - S(126), S(24));
-        AddFindCtl(0, L"STATIC", L"Ganti dengan:", 0, 0, S(14), S(48), S(92), S(18));
+        AddFindCtl(0, L"STATIC", T(S_FR_REP), 0, 0, S(14), S(48), S(92), S(18));
         AddFindCtl(FR_REP, L"EDIT", L"", ES_AUTOHSCROLL | WS_TABSTOP, WS_EX_CLIENTEDGE,
                    S(112), S(44), cw - S(126), S(24));
         AddFindCtl(FR_REGEX, L"BUTTON", L"Regex", BS_AUTOCHECKBOX | WS_TABSTOP, 0,
@@ -2204,7 +2365,7 @@ static void ShowFindDialog() {
                    S(192), S(78), S(110), S(20));
         AddFindCtl(FR_PREVIEW, L"BUTTON", L"Preview", BS_DEFPUSHBUTTON | WS_TABSTOP, 0,
                    S(112), S(106), S(92), S(28));
-        AddFindCtl(FR_APPLY, L"BUTTON", L"Ganti Semua", BS_PUSHBUTTON | WS_TABSTOP, 0,
+        AddFindCtl(FR_APPLY, L"BUTTON", T(S_FR_APPLY), BS_PUSHBUTTON | WS_TABSTOP, 0,
                    S(212), S(106), S(112), S(28));
         AddFindCtl(FR_INFO, L"STATIC", L"", 0, 0, S(14), S(142), cw - S(28), S(18));
         AddFindCtl(FR_LIST, L"LISTBOX", L"", LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,
@@ -2233,8 +2394,8 @@ static void OnButton(int id) {
         Document* d = Cur();
         if (!d || d->loading || d->rows.empty()) break;
         HMENU m = CreatePopupMenu();
-        AppendMenuW(m, MF_STRING, IDM_EXPORT_ALL, L"Export semua baris…");
-        std::wstring lbl = L"Export tampilan saat ini (" + std::to_wstring(d->visible.size()) + L" baris)…";
+        AppendMenuW(m, MF_STRING, IDM_EXPORT_ALL, T(S_MENU_EXPORT_ALL));
+        std::wstring lbl = T(S_EXPORT_VIEW_1) + std::to_wstring(d->visible.size()) + T(S_EXPORT_VIEW_2);
         bool viewDiff = !d->filter.empty() || d->sortCol >= 0;
         AppendMenuW(m, MF_STRING | (viewDiff ? 0 : MF_GRAYED), IDM_EXPORT_FILTERED, lbl.c_str());
         const RECT* r = HitRect(BTN_EXPORT);
@@ -2258,10 +2419,10 @@ static void OnButton(int id) {
         if (!d || d->loading) break;
         HMENU m = CreatePopupMenu();
         struct { int id; const wchar_t* txt; wchar_t ch; } items[] = {
-            {IDM_DELIM_COMMA, L"Koma  ( , )", L','},
-            {IDM_DELIM_SEMI,  L"Titik koma  ( ; )", L';'},
-            {IDM_DELIM_TAB,   L"Tab", L'\t'},
-            {IDM_DELIM_PIPE,  L"Pipe  ( | )", L'|'},
+            {IDM_DELIM_COMMA, T(S_MENU_D_COMMA), L','},
+            {IDM_DELIM_SEMI,  T(S_MENU_D_SEMI), L';'},
+            {IDM_DELIM_TAB,   T(S_MENU_D_TAB), L'\t'},
+            {IDM_DELIM_PIPE,  T(S_MENU_D_PIPE), L'|'},
         };
         for (auto& it : items)
             AppendMenuW(m, MF_STRING | (d->delim == it.ch ? MF_CHECKED : 0), it.id, it.txt);
@@ -2272,13 +2433,24 @@ static void OnButton(int id) {
         DestroyMenu(m);
         break;
     }
+    case BTN_LANG: {
+        HMENU m = CreatePopupMenu();
+        AppendMenuW(m, MF_STRING | (g_lang == 0 ? MF_CHECKED : 0), IDM_LANG_ID, L"Bahasa Indonesia");
+        AppendMenuW(m, MF_STRING | (g_lang == 1 ? MF_CHECKED : 0), IDM_LANG_EN, L"English");
+        const RECT* r = HitRect(BTN_LANG);
+        POINT pt = {r ? r->left : 0, r ? r->top : 0};
+        ClientToScreen(g_hMain, &pt);
+        TrackPopupMenu(m, TPM_LEFTALIGN | TPM_BOTTOMALIGN, pt.x, pt.y, 0, g_hMain, nullptr);
+        DestroyMenu(m);
+        break;
+    }
     case BTN_ENC: {
         Document* d = Cur();
         if (!d || d->loading) break;
         HMENU m = CreatePopupMenu();
-        AppendMenuW(m, MF_STRING | (d->enc == ENC_UTF8 ? MF_CHECKED : 0), IDM_ENC_UTF8, L"UTF-8");
-        AppendMenuW(m, MF_STRING | (d->enc == ENC_UTF8BOM ? MF_CHECKED : 0), IDM_ENC_UTF8BOM, L"UTF-8 dengan BOM");
-        AppendMenuW(m, MF_STRING | (d->enc == ENC_ANSI ? MF_CHECKED : 0), IDM_ENC_ANSI, L"ANSI (codepage sistem)");
+        AppendMenuW(m, MF_STRING | (d->enc == ENC_UTF8 ? MF_CHECKED : 0), IDM_ENC_UTF8, T(S_MENU_E_UTF8));
+        AppendMenuW(m, MF_STRING | (d->enc == ENC_UTF8BOM ? MF_CHECKED : 0), IDM_ENC_UTF8BOM, T(S_MENU_E_BOM));
+        AppendMenuW(m, MF_STRING | (d->enc == ENC_ANSI ? MF_CHECKED : 0), IDM_ENC_ANSI, T(S_MENU_E_ANSI));
         const RECT* r = HitRect(BTN_ENC);
         POINT pt = {r ? r->left : 0, r ? r->top : 0};
         ClientToScreen(g_hMain, &pt);
@@ -2373,7 +2545,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         g_hSearch = CreateWindowExW(0, L"EDIT", L"",
             WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
             0, 0, 0, 0, hwnd, (HMENU)IDC_SEARCH, g_hInst, nullptr);
-        SendMessageW(g_hSearch, EM_SETCUEBANNER, TRUE, (LPARAM)L"Filter…  Ctrl+F · F3 lompat");
+        SendMessageW(g_hSearch, EM_SETCUEBANNER, TRUE, (LPARAM)T(S_FILTER_CUE));
         SetWindowSubclass(g_hSearch, SearchProc, 1, 0);
 
         g_hSideList = CreateWindowExW(0, L"LISTBOX", L"",
@@ -2618,6 +2790,8 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
             }
             return 0;
         }
+        case IDM_LANG_ID: SetLang(0); return 0;
+        case IDM_LANG_EN: SetLang(1); return 0;
         case IDM_ENC_UTF8: case IDM_ENC_UTF8BOM: case IDM_ENC_ANSI: {
             Document* d = Cur();
             if (!d || d->loading) return 0;
@@ -2664,7 +2838,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         if (!d) { delete tmp; return 0; }   // tab sudah ditutup saat masih loading
         if (tmp->loadFailed) {
             d->loading = false;
-            MessageBoxW(hwnd, (L"Gagal membuka file:\n" + d->path).c_str(), L"CSV Commander", MB_ICONERROR);
+            MessageBoxW(hwnd, (T(S_ERR_OPEN) + d->path).c_str(), L"CSV Commander", MB_ICONERROR);
             CloseDoc(idx);
             delete tmp;
             return 0;

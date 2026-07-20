@@ -20,6 +20,7 @@ Viewer/editor CSV ringan untuk Windows — pure Win32 API, satu exe ±230 KB, ta
 - **Statistik kolom** — klik kanan → Statistik: jumlah terisi/kosong, nilai unik, min/max/jumlah/rata-rata untuk kolom numerik.
 - **Cari & lompat** — `F3`/`Shift+F3` (atau `Enter` di kotak filter) melompat antar sel yang cocok dan menyorotnya, tanpa menyembunyikan baris lain; `Esc` membersihkan filter.
 - **Tema terang & gelap** — tombol ☾/☀ di kanan toolbar; default mengikuti tema Windows, pilihan tersimpan.
+- **Dua bahasa UI** — Indonesia & English; klik indikator **ID/EN** di status bar untuk mengganti. Default mengikuti bahasa Windows, pilihan tersimpan, berlaku seketika tanpa restart.
 - **Status bar** — jumlah baris/kolom, posisi sel aktif, dan indikator **delimiter** & **encoding** yang bisa diklik untuk override manual (koma/titik koma/tab/pipe; UTF-8, UTF-8 BOM, ANSI).
 - **Recent files** — layar awal menampilkan file terakhir dibuka; posisi jendela, tema, sidebar, folder, dan pembagian Split tersimpan di `%APPDATA%\CSVCommander\settings.ini`.
 - **Sidebar explorer** — buka folder, semua `.csv`/`.tsv` tampil sebagai daftar; klik untuk membuka.
